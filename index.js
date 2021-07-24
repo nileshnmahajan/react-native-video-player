@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Image, ImageBackground, Platform, StyleSheet, TouchableOpacity, View, ViewPropTypes} from 'react-native';
+import {Text, Image, ImageBackground, Platform, StyleSheet, TouchableOpacity, View, ViewPropTypes} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Video from 'react-native-video'; // eslint-disable-line
 
@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   playButton: {
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
     width: 64,
     height: 64,
     borderRadius: 32,
@@ -40,9 +40,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
   },
   controls: {
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    height: 48,
-    marginTop: -48,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    height: 32,
+    marginTop: -32,
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -72,20 +72,20 @@ const styles = StyleSheet.create({
   },
   seekBarProgress: {
     height: 3,
-    backgroundColor: '#F00',
+    backgroundColor: 'blue',
   },
   seekBarKnob: {
-    width: 20,
-    height: 20,
+    width: 12,
+    height: 12,
     marginHorizontal: -8,
     marginVertical: -10,
     borderRadius: 10,
-    backgroundColor: '#F00',
+    backgroundColor: 'white',
     transform: [{ scale: 0.8 }],
     zIndex: 1,
   },
   seekBarBackground: {
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    backgroundColor: 'rgba(255, 255, 255, 0.4)',
     height: 3,
   },
   overlayButton: {
@@ -107,6 +107,7 @@ export default class VideoPlayer extends Component {
       isControlsVisible: !props.hideControlsOnStart,
       duration: 0,
       isSeeking: false,
+      currentTime:'00:00'
     };
 
     this.seekBarWidth = 200;
@@ -172,6 +173,7 @@ export default class VideoPlayer extends Component {
       this.props.onProgress(event);
     }
     this.setState({
+      currentTime:event.currentTime ,
       progress: event.currentTime / (this.props.duration || this.state.duration),
     });
   }
@@ -428,6 +430,24 @@ export default class VideoPlayer extends Component {
     );
   }
 
+    time(value) {
+    const sec = parseInt(value, 10); // convert value to number if it's string
+    let hours = Math.floor(sec / 3600); // get hours
+    let minutes = Math.floor((sec - hours * 3600) / 60); // get minutes
+    let seconds = sec - hours * 3600 - minutes * 60; //  get seconds
+    // add 0 if value < 10; Example: 2 => 02
+    if (hours < 10) {
+      hours = '0' + hours;
+    }
+    if (minutes < 10) {
+      minutes = '0' + minutes;
+    }
+    if (seconds < 10) {
+      seconds = '0' + seconds;
+    }
+    return parseInt(hours)>0?(hours + ':'):'' + minutes + ':' + seconds; // Return is HH : MM : SS
+  }
+
   renderControls() {
     const { customStyles } = this.props;
     return (
@@ -443,6 +463,9 @@ export default class VideoPlayer extends Component {
           />
         </TouchableOpacity>
         {this.renderSeekBar()}
+
+      <Text style={{color:'white'}}>{this.time(this.state.currentTime)}</Text>
+
         {this.props.muted ? null : (
           <TouchableOpacity onPress={this.onMutePress} style={customStyles.controlButton}>
             <Icon
